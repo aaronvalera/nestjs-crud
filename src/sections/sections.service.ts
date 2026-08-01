@@ -46,7 +46,9 @@ export class SectionsService {
         ...sectionObj,
         students: students.filter((studentDoc) => {
           const sectionValue = studentDoc.section;
-          return sectionValue && (sectionValue.toString ? sectionValue.toString() : sectionValue) === section._id.toString();
+          return (
+            sectionValue && (sectionValue.toString ? sectionValue.toString() : sectionValue) === section._id.toString()
+          );
         }),
       };
     }) as Section[];

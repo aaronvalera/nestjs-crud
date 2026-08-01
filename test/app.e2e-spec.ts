@@ -199,6 +199,16 @@ describe('API (e2e)', () => {
       expect(Array.isArray(data)).toBe(true);
       expect(data.length).toBe(1);
       expect(data[0]._id).toBe(sectionId);
+      expect(Array.isArray(data[0].students)).toBe(true);
+      expect(data[0].students.some((student: any) => student._id === studentId)).toBe(true);
+    });
+
+    it('GET /sections/:id should return section with the created student', async () => {
+      const res = await request(server).get(`/sections/${sectionId}`);
+      const data = expectWrapped(res, 200);
+      expect(data._id).toBe(sectionId);
+      expect(Array.isArray(data.students)).toBe(true);
+      expect(data.students.some((student: any) => student._id === studentId)).toBe(true);
     });
 
     it('GET /grades?student= should filter by the student grade', async () => {
