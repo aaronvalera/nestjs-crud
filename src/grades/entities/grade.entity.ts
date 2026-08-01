@@ -12,14 +12,20 @@ export class Grade {
   @Prop({ required: true, unique: true, trim: true })
   name!: string;
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'Section' }], default: [] })
-  students!: Types.ObjectId[];
+  sections?: unknown[];
+  students?: unknown[];
 }
 
 export const GradeSchema = SchemaFactory.createForClass(Grade);
 
 GradeSchema.virtual('sections', {
   ref: 'Section',
+  localField: '_id',
+  foreignField: 'grade',
+});
+
+GradeSchema.virtual('students', {
+  ref: 'Student',
   localField: '_id',
   foreignField: 'grade',
 });

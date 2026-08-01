@@ -3,7 +3,7 @@ import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Student, StudentDocument } from './entities/student.entity';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { StudentsPaginationDto } from './dto/students-pagination.dto';
 import { Section } from 'src/sections/entities/section.entity';
 import { MongoServerError } from 'mongodb';
@@ -25,11 +25,11 @@ export class StudentsService {
     }
 
     if (grade) {
-      filter.grade = grade;
+      filter.grade = new Types.ObjectId(grade);
     }
 
     if (section) {
-      filter.section = section;
+      filter.section = new Types.ObjectId(section);
     }
 
     return this.studentModel.find(filter).populate('grade').populate('section').exec();

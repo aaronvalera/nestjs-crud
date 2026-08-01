@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateGradeDto } from './dto/create-grade.dto';
 import { UpdateGradeDto } from './dto/update-grade.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Grade, GradeDocument } from './entities/grade.entity';
 import { GradesPaginationDto } from './dto/grades-pagination.dto';
 import { Section, SectionDocument } from 'src/sections/entities/section.entity';
@@ -30,7 +30,7 @@ export class GradesService {
       if (!sectionDoc) {
         return [];
       }
-      filter._id = sectionDoc.grade;
+      filter._id = new Types.ObjectId(sectionDoc.grade);
     }
 
     if (student) {
@@ -38,7 +38,7 @@ export class GradesService {
       if (!studentDoc) {
         return [];
       }
-      filter._id = studentDoc.grade;
+      filter._id = new Types.ObjectId(studentDoc.grade);
     }
 
     return this.gradeModel.find(filter).populate('sections').populate('students').exec();

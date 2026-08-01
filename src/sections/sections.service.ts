@@ -4,7 +4,7 @@ import { UpdateSectionDto } from './dto/update-section.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Section, SectionDocument } from './entities/section.entity';
 import { Student, StudentDocument } from 'src/students/entities/student.entity';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { SectionsPaginationDto } from './dto/sections-pagination.dto';
 
 @Injectable()
@@ -32,18 +32,22 @@ export class SectionsService {
       if (!studentDoc) {
         return [];
       }
-      filter._id = studentDoc.section;
+      filter._id = new Types.ObjectId(studentDoc.section);
     }
 
     const sections = await this.sectionModel.find(filter).populate('grade').exec();
     const sectionIds = sections.map((section) => section._id);
-    const students = await this.studentModel.find({ section: { $in: sectionIds } }).exec();
+    const sectionIdStrings = sectionIds.map((id) => id.toString());
+    const students = await this.studentModel.find({ section: { $in: [...sectionIds, ...sectionIdStrings] } }).exec();
 
     return sections.map((section) => {
       const sectionObj = section.toObject({ virtuals: true });
       return {
         ...sectionObj,
-        students: students.filter((studentDoc) => studentDoc.section.toString() === section._id.toString()),
+        students: students.filter((studentDoc) => {
+          const sectionValue = studentDoc.section;
+          return sectionValue && (sectionValue.toString ? sectionValue.toString() : sectionValue) === section._id.toString();
+        }),
       };
     }) as Section[];
   }
@@ -55,7 +59,7 @@ export class SectionsService {
       throw new NotFoundException('Section not found.');
     }
 
-    const students = await this.studentModel.find({ section: section._id }).exec();
+    const students = await this.studentModel.find({ section: { $in: [section._id, section._id.toString()] } }).exec();
     const sectionObj = section.toObject({ virtuals: true });
     return {
       ...sectionObj,
